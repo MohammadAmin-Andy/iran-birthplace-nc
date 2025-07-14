@@ -1,6 +1,6 @@
 # backend/app/routers/birthplace.py
 
-from fastapi import APIRouter, HTTPException, status, Path
+from fastapi import APIRouter, HTTPException, status
 from typing import Dict
 
 # Import the service that contains the business logic
@@ -12,45 +12,46 @@ birthplace_service = BirthplaceService()
 # Create a new router
 router = APIRouter()
 
-@router.get(
-    "/validate/{national_code}",
-    response_model=Dict[str, str],
-    summary="Validate a national code and get its birthplace",
+@router.post(
+    "/validate",
+    response_model=Dict,
+    summary="Validate a national code and get its details",
     tags=["Birthplace Validation"]
 )
-def validate_national_code(
-    national_code: str = Path(
-        ...,
-        min_length=10,
-        max_length=10,
-        regex="^[0-9]{10}$",
-        title="Iranian National Code",
-        description="A 10-digit Iranian national code."
-    )
-):
+def validate_national_code(payload: Dict[str, str]):
     """
-    Validates the first three digits of an Iranian national code to find the
-    corresponding birthplace (city/region).
+    Performs a full, step-by-step validation of an Iranian national code.
 
-    - **national_code**: A 10-digit string containing the national code.
-    - **Returns**: A dictionary with the birthplace information if found.
-    - **Raises**: An HTTPException with status 404 if the code prefix is not found.
+    - **Receives**: A JSON payload like `{"national_code": "0012345678"}`.
+    - **Returns**: A detailed dictionary with the validation status and details.
     """
+    national_code = payload.get("national_code")
+    
+    # Step 1: Check if the 'national_code' key exists in the payload.
+    if not national_code:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="The 'national_code' key is missing from the request payload."
+        )
+
+    # Step 2: Check if the length is exactly 10.
+    if len(national_code) != 10:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="The national code must be exactly 10 digits long."
+        )
+
+    # Step 3: Check if all characters are digits.
+    if not national_code.isdigit():
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="The national code must only contain digits."
+        )
+
     try:
-        # Extract the first 3 digits
-        code_prefix = national_code[:3]
-        
-        # Call the service to get the city
-        city = birthplace_service.get_city_by_code(code_prefix)
-        
-        if city:
-            return {"code_prefix": code_prefix, "birthplace": city}
-        else:
-            # If the service returns None, the code was not found
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail=f"Birthplace for code prefix '{code_prefix}' not found."
-            )
+        # Call the service method to get the full validation details
+        validation_result = birthplace_service.get_validation_details(national_code)
+        return validation_result
     except Exception as e:
         # General error handler for unexpected issues
         raise HTTPException(

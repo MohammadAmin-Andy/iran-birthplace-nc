@@ -2,7 +2,7 @@
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.routers import birthplace
+from routers import birthplace
 
 app = FastAPI(
     title="Iran Birthplace National Code API",

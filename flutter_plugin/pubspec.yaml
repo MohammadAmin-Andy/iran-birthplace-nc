@@ -1,0 +1,28 @@
+name: iran_birthplace_nc
+description: A Flutter package to validate Iranian national codes based on their birthplace by connecting to a dedicated API.
+version: 1.0.0
+homepage: https://github.com/MohammadAmin-Andy/iran-birthplace-nc # Your GitHub repository URL
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+  flutter: ">=1.17.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  
+  # Package for sending HTTP requests to the backend API
+  http: ^1.1.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  
+  # Package for checking code quality and style
+  flutter_lints: ^3.0.0
+
+# The following section is specific to Flutter packages.
+flutter:
+  # assets:
+  #   - images/a_dot_burr.jpeg
+  #   - images/a_dot_ham.jpeg
